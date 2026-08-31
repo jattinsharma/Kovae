@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  # Mocking a local postgres instance.
+  # For full Supabase local dev, we usually run `npx supabase start`
+  # which spins up the entire Supabase stack automatically.
+  # This docker-compose is provided if we want a raw local PostgreSQL fallback.
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: kovae
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./apps/backend:/app/apps/backend
+    environment:
+      - PYTHONPATH=/app
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
